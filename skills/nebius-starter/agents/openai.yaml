@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nebius Starter"
+  short_description: "From an idea to a working Nebius demo"
+  default_prompt: "Use $nebius-starter to help me choose and set up the Nebius products I need, then build and verify a small demo of my idea."
