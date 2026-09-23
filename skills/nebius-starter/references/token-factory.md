@@ -7,6 +7,7 @@ Read when the application needs hosted model APIs, or when evaluating Sandboxes 
 - [Documentation index](https://docs.tokenfactory.nebius.com/llms.txt)
 - [Model API quickstart](https://docs.tokenfactory.nebius.com/quickstart.md)
 - [Token Factory console](https://tokenfactory.nebius.com/)
+- [Billing and promo-code redemption](https://docs.tokenfactory.nebius.com/other-capabilities/billing-new.md)
 - [Sandboxes coding-agent instructions](https://docs.tokenfactory.nebius.com/sandboxes/cli/commands/agent.md)
 - [Sandboxes skill installation](https://docs.tokenfactory.nebius.com/sandboxes/cli/commands/skill.md)
 

@@ -9,6 +9,7 @@ Read when the build needs cloud compute, custom model execution, storage, networ
 - [Nebius infrastructure skill](https://github.com/nebius/nebius-ps-services/tree/main/skills/nebius)
 - [Skills catalog and installation instructions](https://github.com/nebius/nebius-ps-services/blob/main/skills/README.md)
 - [Account sign-up](https://docs.nebius.com/signup-billing/sign-up.md)
+- [Promo-code redemption](https://docs.nebius.com/signup-billing/payments/promo-codes.md)
 - [Serverless AI overview](https://docs.nebius.com/serverless/overview.md)
 - [First VM](https://docs.nebius.com/compute/quickstart.md)
 

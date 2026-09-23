@@ -4,6 +4,10 @@ Tell your coding agent what you want to build. It helps you choose Nebius AI Clo
 
 For hackathons, workshops, and your first prototype. Bring an idea or an existing project.
 
+**Three products, separate accounts.** For this guided setup, you will create or reuse an account and sign in separately to each product your build needs. Product access, API credentials, and credit balances are separate, even when you use the same Google or GitHub identity. The skill walks you through setup and connects the tools; you complete sign-in, verification, consent, and any required billing details yourself.
+
+**Redeem promo codes separately.** If you have an applicable code for AI Cloud, Token Factory, or Tavily, apply it in that product's own account. Each product's credits must be activated and checked separately; redemption in one does not credit the others. The skill helps you find the right redemption flow and verify the result. You only set up the products your build needs.
+
 ## Get started
 
 You need a coding agent with access to your project and terminal. The installer uses Node.js and npm; see the [skills CLI requirements](https://github.com/vercel-labs/skills).
@@ -53,7 +57,7 @@ A video briefing could use Tavily for sources, Token Factory for its script, and
 
 1. A brief introduction and a recommendation based on your idea, project, time, and budget.
 2. Setup for your actual coding agent, using current official guides and existing configuration where possible.
-3. Account or login steps only for the products you need. You complete sign-in and enter credentials through a secure local mechanism, never in chat.
+3. Separate account, sign-in, and promo-code steps for each selected product. You complete personal steps and enter credentials through a secure local mechanism, never in chat.
 4. A small working example, a real output check, and commands to run it again.
 5. A handoff showing configured tools, remaining blockers, running resources, and how to stop ongoing charges.
 

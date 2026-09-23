@@ -9,6 +9,9 @@ Read when the build needs current web information, search, extraction, or resear
 - [Agent skills and installation instructions](https://docs.tavily.com/documentation/agent-skills.md)
 - [Official skills repository](https://github.com/tavily-ai/skills)
 - [API quickstart](https://docs.tavily.com/documentation/quickstart.md)
+- [Credits and billing](https://docs.tavily.com/documentation/api-credits.md)
+
+For a Tavily promo offer, use its current official redemption instructions and the user's offer terms. Do not assume another product's code or redemption interface applies.
 
 Read the agent guide first, then the selected capability's setup and API documentation. Verify current access options, limits, and pricing instead of assuming an account or paid plan is always needed.
 

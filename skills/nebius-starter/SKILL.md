@@ -15,6 +15,12 @@ On a fresh start, briefly introduce all three products with examples:
 - **Nebius Token Factory** provides model APIs for adding AI without managing the underlying model-serving infrastructure: chatbots, document summaries, and agents that plan and carry out tasks.
 - **Tavily** provides web search and extraction so applications and agents can use current information: topic research, news monitoring, and answers backed by sources.
 
+In this first response, before the combination example and build question, explain the separate accounts and the user's part in setup. Use concise language such as:
+
+> These are three separate products. We'll set up or reuse a separate account and sign-in for each product your build needs. Access, API credentials, and credit balances are separate. I'll guide you through setup and connect the tools, but you'll need to complete sign-in, verification, consent, and any required billing details yourself. If you have promo codes, we'll redeem the applicable code separately in each product's own account and check its credits. Redeeming a code in one product does not credit the others.
+
+Make this clear even when the user already knows what they want to build. Using the same Google or GitHub identity where supported does not establish access or credits across products. Set up only the products the build needs. Account-based onboarding is the default, especially for redeeming promo codes; if a documented keyless trial fits and is chosen, explain that limited exception explicitly.
+
 Explain how they can work together. A video briefing assistant could use Tavily to find current sources, Token Factory to write a summary, script, and scene descriptions, and AI Cloud to run image-generation and rendering workloads, store outputs, and host the application. This is an illustration, not the default architecture.
 
 Then ask what the user wants to build. If the idea is already clear, reflect it back and move to a recommendation. On resume, continue from the last verified step without repeating the introduction.
@@ -69,6 +75,13 @@ Exclude credentials from that prompt. Resume by verifying the pending step, not 
 ## 5. Connect accounts and control costs
 
 Help with account creation, authentication, and the minimum access needed for each selected platform. Do not assume accounts, credentials, billing, or event credits are shared. Let the user complete sign-in, consent, and payment details themselves. Do not request secrets in chat. Use the platform's secure login flow, a local secret store, or an ignored local environment file. Keep runtime keys on the server side; provide placeholder-only configuration examples.
+
+Handle accounts and promo codes one product at a time:
+
+1. Open that product's official sign-up or console page and create or reuse its account. Let the user complete the personal steps, then verify access.
+2. Ask whether they have an applicable promo code or event credit instructions if this is not already known. Check the product's current redemption flow, eligibility, expiry, and any billing activation charges before proceeding. Do not assume every product has an offer or accepts the same code.
+3. Help the user enter the applicable code in that product's own account. Repeat separately for every selected product with an offer, even if an organizer supplied the same code text for more than one.
+4. Verify the credited balance or redemption confirmation in each account before relying on it for paid usage. If you cannot inspect it, ask the user to check the exact confirmation and report that verification limit. Track each product's account, connection, and credit status separately without recording credentials or promo-code values in project files.
 
 Before paid calls or provisioning, explain the expected cost using current pricing, including estimate assumptions and any costs that continue while idle. Establish an acceptable demo spend or use an already agreed budget. Check credit eligibility and balance where accessible; otherwise say what the user must verify. Do not promise free usage from event attendance or a generic free-tier claim.
 

@@ -4,7 +4,7 @@ Use these as manual acceptance cases when changing the skill. They describe expe
 
 | Scenario | Expected behavior |
 | --- | --- |
-| “I'm at a hackathon and don't know what to build.” | Briefly introduces all three products, offers a few small ideas, and asks for a choice before installing product-specific tools. |
+| “I'm at a hackathon and don't know what to build.” | In the first response, introduces the three distinct products, separate accounts/sign-ins/credits, user participation in setup, and separate promo redemption. Then offers a few small ideas and asks for a choice before installing product-specific tools. |
 | “Add document summaries to this existing app.” | Inspects the stack and recommends Token Factory if suitable. Keeps the model key server-side; does not add web search, a GPU VM, or Sandboxes without a reason. |
 | “Build a briefing about recent news with sources.” | Recommends Tavily plus Token Factory, installs relevant skills, integrates runtime APIs, and checks that a real output uses returned sources. |
 | “I need to render this scene with my own GPU code.” | Reads Cloud guides, checks workload requirements and target capacity, explains costs, and verifies an actual rendered artifact. |
@@ -15,6 +15,9 @@ Use these as manual acceptance cases when changing the skill. They describe expe
 | An operational MCP is configured but absent from this session. | Labels it unverified, gives a continuation prompt if restart is needed, then checks the live connection after restart. |
 | Only a documentation MCP is available. | Does not claim account authentication or a usable operational connection. |
 | “Use my hackathon credits; I don't know which product they're for.” | Verifies applicability or gives a concrete user check. Does not assume cross-product credits or start unbudgeted paid use. |
+| “I already signed into AI Cloud with Google, so I'm ready for all three.” | Explains that the shared identity does not establish Token Factory or Tavily access. Helps create or reuse the other selected accounts and verifies each connection separately. |
+| “The organizer gave me promo codes for all three products.” | Guides redemption separately in each selected product's account using its applicable offer and current flow. Checks each credit balance independently before relying on it, without recording code values in project files. |
+| “I've redeemed the code in Token Factory; can we use those credits for the GPU?” | Explains that the AI Cloud account needs its own applicable credits or budget. Verifies Cloud billing separately before provisioning. |
 | A browser login needs the user's attention. | Gives the exact next action, continues independent work, then verifies the connection after login. Never asks for the key in chat. |
 | A create request times out. | Checks whether the resource was created before retrying; avoids duplicate resources and charges. |
 | No GPU capacity, unavailable model, missing credential, or inaccessible required guide. | Reports the specific blocker, offers a smaller feasible path, and distinguishes completed work from unverified work. |
