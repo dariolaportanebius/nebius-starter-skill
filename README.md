@@ -4,6 +4,8 @@ Tell your coding agent what you want to build. It helps you choose Nebius AI Clo
 
 For hackathons, workshops, and your first prototype. Bring an idea or an existing project.
 
+**GTC Berlin 2026 participants:** start with the [event participant guide](docs/hackathon/README.md). It describes the assigned-project setup and event limits; use it alongside the general starter instructions below.
+
 **Three products, separate accounts.** For this guided setup, you will create or reuse an account and sign in separately to each product your build needs. Product access, API credentials, and credit balances are separate, even when you use the same Google or GitHub identity. The skill walks you through setup and connects the tools; you complete sign-in, verification, consent, and any required billing details yourself.
 
 **Redeem promo codes separately.** If you have an applicable code for AI Cloud, Token Factory, or Tavily, apply it in that product's own account. Each product's credits must be activated and checked separately; redemption in one does not credit the others. The skill helps you find the right redemption flow and verify the result. You only set up the products your build needs.
