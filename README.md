@@ -117,11 +117,26 @@ Service background: [Serverless AI](https://docs.nebius.com/serverless/overview)
 
 Each team is assigned a project in the organizer-managed tenant, with a name such as `group01-project`. Resources and limits are shared by everyone on the team.
 
-1. Give the organizers the email addresses of your team members and obtain your assigned project name.
-2. Open the Nebius invitation sent to your email and complete the sign-in and invitation-acceptance steps.
-3. Open the [AI Cloud console](https://console.nebius.com/) and select the hackathon tenant and your assigned project.
-4. Confirm the project region is **`uk-south2`**. Copy your project's ID from its details if you will use the CLI or an agent.
-5. Confirm that you can view your project and its SecretStash entry described below.
+You should have received an invitation from Nebius on the morning of the hackathon, at the email address you registered with. The organizers already have your email address. Look for a message like this:
+
+> **Hello,**
+>
+> You were invited to join the **`<HACKATHON_TENANT_NAME>`** Nebius tenant. Use the button below to set up your account and get started!
+>
+> **Accept the invitation**
+>
+> If you have any questions, email Nebius [support](mailto:support@nebius.com) — we'll be glad to help. Great to have you with us!
+
+`<HACKATHON_TENANT_NAME>` is a placeholder; your email contains the actual tenant name. Use the button in your own invitation email.
+
+1. **Open your invitation.** Check your inbox and spam folder, then click **Accept the invitation** in the email. If the email is missing or the link has expired, ask an organizer to resend it.
+2. **Sign in to Nebius.** Follow the sign-in screen opened by the invitation. If you already have a Nebius account, use your usual sign-in method. Otherwise, choose one of the sign-in options offered and follow the account setup prompts. If asked for contact details, enter your name and the email address that received the invitation, complete any requested verification, and review the terms before accepting them. If the browser is signed in to a different account, switch to the account you intend to use for the hackathon before continuing.
+3. **Complete invitation acceptance.** Check that the tenant name matches the invitation email and confirm joining it if prompted. Continue until you reach the console. If signing in leaves you outside the invitation flow, reopen the button in your email while signed in to the same account.
+4. **Select your team's project.** In the [AI Cloud console](https://console.nebius.com/), select the tenant named in your invitation, then your assigned project, such as `group01-project`. Ask an organizer if you do not know your team's project name.
+5. **Check the region and project ID.** Confirm the project region is **`uk-south2`**. Copy your project's ID from its details if you will use the CLI or an agent.
+6. **Check access to your team's secret.** Open SecretStash in that project and confirm that you can see `hackathon-object-storage`, described in [Object Storage credentials](#6-retrieve-object-storage-credentials).
+
+For help signing in, see [How to authenticate in Nebius AI Cloud](https://docs.nebius.com/iam/log-in).
 
 The organizers assign team members to the corresponding `groupNN-project-editors` group. This grants project editor access, with an additional permission to read that project's credential secret. Ask an organizer if the project or secret is missing.
 
