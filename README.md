@@ -56,7 +56,9 @@ Select the current agent and the Nebius Cloud skills in the installer. Use the c
 
 #### Step 3: Resolve installation problems and verify availability
 
-These instructions cover installing and loading the skills. Delegate Nebius CLI setup and errors to the installed skills in Step 5.
+Check whether the Nebius plugin's skills are already available in this session. If they are, verify that you can read them, then continue to Step 4 without reinstalling a working plugin. After reading the environment description, use **nebius-cloud-basics** in Step 5 for Nebius CLI installation, configuration, authentication, and general CLI errors. Use **nebius-public-docs** for questions about Cloud capabilities.
+
+If the skills are unavailable or cannot load, use the agent client's installation guidance and the recovery steps below. These steps concern skill installation; the Nebius skills can help with Cloud setup once they are accessible.
 
 - **Missing agent executable or installer dependency:** consult its official installation instructions, provide steps for the participant's operating system, and recheck availability in the agent's terminal.
 - **Unsupported plugin command:** check client version and update guidance. Use the portable installer above only if the client supports it.
