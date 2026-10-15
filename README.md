@@ -101,17 +101,29 @@ Follow these steps in the [Cloud console](https://console.nebius.com/) after joi
 5. Configure the application's port and the authentication appropriate to the workload. Use endpoint bearer-token authentication for API access, the template's login flow for browser Devlabs, and SSH keys for SSH. Follow [How to connect](#how-to-connect) below and keep credentials secure.
 6. Create the workload and inspect its status and logs. For an endpoint, wait until it is running and send a small real request. For a DevLab, open its UI and run a small notebook cell. For a job, inspect its exit status and output.
 
+### Allow time for startup and model loading
+
+The first start can take several minutes: the platform must provision resources, pull the container image, and your application may download model weights and load them onto the GPU. Large images and models take longer. A running resource does not necessarily mean the model is ready to answer requests.
+
+If an endpoint returns **503** during startup, check its status and logs for download or model-loading progress. Retry a small request after a short wait while progress continues. If logs show a crash, missing configuration, an incorrect port, or no continuing progress, investigate that error; do not keep waiting or create duplicate endpoints. Verify a real inference request before relying on the endpoint for your demo.
+
+**Plan for another cold start after stopping an endpoint.** Its container disk is removed on stop or deletion. Weights cached only there must be downloaded again on the next start or replacement deployment. Store durable model files and results in your team's bucket and configure the application to use them; a bucket does not automatically become the model's cache. Loading weights into GPU memory still takes time. A Devlab's workspace, by contrast, survives stop/restart; place caches under its configured workspace path if you want to retain them. See [storage lifecycle](https://docs.nebius.com/serverless/overview#devlabs-endpoints-and-jobs).
+
 ### How to connect
 
 | What you want to access | Connection | Public IP on the workload? | Authentication |
 | --- | --- | --- | --- |
-| Serverless endpoint API | Managed HTTPS URL from the endpoint page | **Not needed** | Enable endpoint token authentication and send its token in the `Authorization: Bearer <token>` header. |
-| JupyterLab Devlab in your browser | Managed HTTPS URL from the Devlab page | **Not needed** | Enter the **Jupyter token** in JupyterLab's login screen. Use the token configured for that template. |
+| Serverless endpoint API | Managed HTTPS URL from the endpoint page | **Not needed** | Enable **Bearer token authentication** and create/select its token secret. Send that token in the `Authorization: Bearer <token>` header. |
+| JupyterLab Devlab in your browser | Managed HTTPS URL from the Devlab page | **Not needed** | Leave the platform **Bearer token authentication** option off. Keep Jupyter authentication enabled and enter the template's **Jupyter token** in its login screen. |
 | Workload through SSH | SSH to its public address, or through an established private-network path | **Needed for direct internet SSH**; a reachable private-network path can avoid it | SSH key; an endpoint or Jupyter token does not replace it. |
 
-Managed HTTPS URLs are reachable from the internet without allocating a public IP to the workload. **No public IP does not mean private access**: configure authentication for the service behind the URL. See [endpoint access](https://docs.nebius.com/serverless/endpoints/manage#how-to-call-an-endpoint) and the [JupyterLab quickstart](https://docs.nebius.com/serverless/quickstart/devlabs).
+**For endpoint APIs:** use the managed HTTPS URL with bearer authentication enabled. The URL is internet-accessible even without a VM public IP. Use a dedicated endpoint token, not the Object Storage access key. Keep the token private and supply it from your API client; opening the URL in a normal browser tab does not add an Authorization header.
 
-**Jupyter login and Devlab route protection are separate.** JupyterLab's token signs you into the notebook application. Nebius also documents optional bearer-token protection for a Devlab's web route; that is an additional access layer, not the Jupyter login token or an endpoint token. Follow your template's login instructions and any route authentication you configured. For other Devlab templates or custom images, check their own authentication settings. See [Devlab management](https://docs.nebius.com/serverless/devlabs/manage).
+**For JupyterLab:** open the managed HTTPS URL and enter the Jupyter token generated or configured for the template. For this hackathon, leave the platform's separate bearer-token option off for browser Devlabs. A normal browser navigation does not supply that header. Keep the application's own login enabled. For other browser templates, verify their login protection before exposing the UI; ask an organizer if the template has no login. See the [JupyterLab quickstart](https://docs.nebius.com/serverless/quickstart/devlabs).
+
+**Endpoint authentication and application authentication are separate.** The endpoint token protects the managed URL at the platform gateway. Configuring it does not configure a token environment variable inside your container. If your application also requires a token, supply the variable or setting that application expects. In the console, use **Secret environment variables**; in the CLI, use `--env-secret APP_TOKEN=SECRET_SELECTOR`, replacing `APP_TOKEN` with the application's actual variable name and selecting a secret with that payload key. Use `--env` for non-secret settings. See [endpoint settings](https://docs.nebius.com/serverless/endpoints/manage).
+
+Check how the application expects clients to authenticate. If both layers expect the same bearer header, their configured token values must agree; do not assume that the platform supplies an application credential. A **401** can come from either authentication layer. A **503** can indicate a backend that is still starting or has failed. Use application logs and the response to identify the cause instead of disabling authentication.
 
 For SSH, check the selected workload's networking requirements before enabling it. The project has one shared public-IP allowance, and SSH configuration can allocate an IP even when browser access does not need one. See [Devlab SSH](https://docs.nebius.com/cli/reference/ai/devlab/ssh) and [endpoint management](https://docs.nebius.com/serverless/endpoints/manage).
 
@@ -134,7 +146,14 @@ nebius version
 nebius profile list
 ```
 
-If the CLI is already installed, check its version and use the current release. If your operating system is not covered by the installation guide, you can continue using the web console.
+If the CLI is already installed, update to the latest release and check the version again:
+
+```bash
+nebius update
+nebius version
+```
+
+Use [CLI update help](https://docs.nebius.com/cli/reference/update) if updating fails. If your operating system is not covered by the installation guide, you can continue using the web console.
 
 **Connect to your assigned project.** Copy your assigned project ID from the console, replace the placeholder, and run:
 
@@ -145,8 +164,10 @@ export NEBIUS_PROJECT_ID='YOUR_ASSIGNED_PROJECT_ID'
 A profile saves the account and project used by the CLI. Reuse a correctly configured event profile if one exists. The examples below use the profile name `hackathon`; substitute your existing profile name throughout if it differs. If you need a new profile, create it:
 
 ```bash
-nebius profile create --profile hackathon --parent-id "$NEBIUS_PROJECT_ID"
+nebius profile create hackathon --parent-id "$NEBIUS_PROJECT_ID"
 ```
+
+Here, `hackathon` is the new profile name, a positional argument to [profile create](https://docs.nebius.com/cli/reference/profile/create). The later `--profile hackathon` option selects that saved profile for other commands.
 
 Complete browser sign-in with the identity that accepted your invitation. Wait for the login-success message, then return to the terminal and confirm that it reports the profile as configured. See [CLI profile setup](https://docs.nebius.com/cli/configure) if sign-in does not complete.
 
@@ -314,9 +335,14 @@ After cleanup, verify the workload state and remaining usage in your project. Fo
 | Project or secret is not visible | Check the signed-in identity, tenant, project, and team-group membership. |
 | GPU allocation or quota error | Check for another GPU workload in your project; verify `uk-south2` and the RTX preset. A quota error can also appear after the reserved allowance is consumed. |
 | VM, CPU, or disk limit reached | Count your team's combined workloads, including Serverless VMs and retained DevLab disks. |
+| Endpoint returns 503 | Check startup logs for image/model downloads, then application errors and the configured port. See [startup guidance](#allow-time-for-startup-and-model-loading). |
+| Endpoint returns 401 | Check the gateway bearer token and any separate application authentication. |
+| Browser Devlab returns an authentication error before its login page | Check whether platform bearer authentication was enabled; use the Jupyter/template login setup in [How to connect](#how-to-connect). |
 | Object Storage authentication fails | Check the endpoint, region, matching key pair, and expiry in SecretStash. |
 | Object Storage bucket missing | Select your assigned project and follow [Create and use your team's bucket](#create-and-use-your-teams-bucket). If the one-bucket limit is reached, check whether a teammate already created it. |
 | Token Factory request fails | Check its own API key, credits, selected model, and response error. Cloud access does not establish Token Factory access. |
+
+For console guidance, click **Ask Echo** to open [Nebius Echo](https://docs.nebius.com/overview/nebius-echo). It can explain services and inspect project resources. Tell it your assigned project and the limits in this guide, and review any proposed resource change before approving it. Keep credentials out of the conversation.
 
 Ask the event organizers for help. Provide your project name, resource ID, timestamp, and request/trace ID when available. Redact tokens and credentials.
 
@@ -395,7 +421,11 @@ After skill setup, read all of sections 1–10 of this README, including project
 
 #### Step 5: Configure and verify Nebius Cloud access
 
-Use **nebius-cloud-basics** for CLI installation, version requirements, profiles, authentication, scope resolution, and CLI errors. Follow its preflight and agent-identification instructions before CLI calls. It provides the participant's steps for CLI installation, updates, and browser sign-in; verify the result afterward. Check the requirements of the Serverless and Devlabs skills as well, not only the foundation skill.
+Use **nebius-cloud-basics** for CLI installation, version requirements, profiles, authentication, scope resolution, and CLI errors. Follow its preflight and agent-identification instructions before CLI calls. Have the participant check `nebius version`, update with `nebius update` when needed, and check the version again. The skill provides steps for installation and browser sign-in; verify the result afterward. Check the requirements of the Serverless and Devlabs skills as well, not only the foundation skill.
+
+**Reuse authentication in the environment that runs the CLI.** Check the execution user, home directory, and selected profile without reading credential contents. The CLI normally stores configuration under `~/.nebius`, outside the repository. A workspace sandbox, remote container, or different OS user may not be able to use the session established in the participant's terminal. Distinguish a filesystem-access restriction from an expired Cloud session before asking for another login.
+
+If sandbox access is blocked, explain the required CLI configuration/session access and use the client's supported permission flow for that command or location. Do not disable the sandbox, copy credentials into the repository, or ask for tokens in chat. If the agent runs elsewhere, guide the participant through login in that execution environment using the supported browser flow. If that is not possible, have them run the commands in their own terminal and return only non-secret results. After setup, verify access from the agent's environment and reuse that profile; repeat sign-in only when the session requires it. Local filesystem permission prompts are separate from Nebius authentication.
 
 Use the selected profile consistently. Confirm the authenticated identity and the assigned project and `uk-south2` region with read-only requests. Use **nebius-compute-inventory** for platform discovery and **nebius-capacity-quotas** for project quotas and reservation allowances. Check the project's Serverless listings through the relevant skills, projecting only non-secret metadata and state. A successful empty listing is valid; a failed request is not an empty environment. If a tenant-wide query is denied, report that check separately rather than changing permissions or assuming project access is broken.
 
@@ -411,4 +441,14 @@ Report the skills available, the verified Cloud profile and assigned project, th
 
 Once ready, tell the participant they can now ask you to work with Nebius Cloud. Wait for their request before creating workloads, buckets, or other cloud resources. Apply the environment limits and relevant skills when they provide that request.
 
-Before creating a requested workload, explain how the participant will connect, whether it consumes the project's public-IP allowance, and which authentication mechanism they will use. Follow [How to connect](#how-to-connect): prefer managed HTTPS for endpoints and browser Devlabs, and configure SSH only when requested. Distinguish endpoint bearer tokens, JupyterLab login tokens, optional Devlab route protection, and SSH keys. Verify the selected template's authentication flow rather than applying endpoint settings to a Devlab.
+Before creating a requested workload, explain how the participant will connect, whether it consumes the project's public-IP allowance, and which authentication mechanism they will use. Follow [How to connect](#how-to-connect): prefer managed HTTPS for endpoints and browser Devlabs, and configure SSH only when requested. Use endpoint bearer authentication for API endpoints and the application login for browser Devlabs, leaving the separate Devlab bearer option off as described above. Verify the selected template's authentication flow and keep SSH keys separate from both token types.
+
+#### Before creating the first workload
+
+Setup above is read-only. When the participant later requests a deployment:
+
+1. Resolve the assigned project, region, image/template, GPU or CPU preset, disk size, ports, authentication, and secret references. Check for an existing resource with the intended name to avoid duplicate creation.
+2. Run the fully specified create command with `--dry-run` where supported. Both [endpoint create](https://docs.nebius.com/cli/reference/ai/endpoint/create) and [Devlab create](https://docs.nebius.com/cli/reference/ai/devlab/create) support it; confirm with the installed CLI's help. Protect secrets in dry-run output as well as normal output. Validation does not reserve a GPU or prove that the image, model, or application will start successfully.
+3. Show the proposed configuration and command with secret references, and explain the resource and cost implications before execution. Use current pricing or the Nebius billing skill for an estimate; clearly label any unknown event-specific billing or reservation treatment. Do not assume unused resources are free because the event has reserved capacity. Running workloads use compute and storage; stopped Devlabs retain billed storage, while stopped endpoints release their container disks. Buckets and other persistent storage are separate. See [Serverless billing](https://docs.nebius.com/serverless/overview#pricing-and-quotas).
+4. Obtain the participant's explicit confirmation of the proposed deployment before the first create. If that exact deployment is already approved, use that approval; setup approval alone is insufficient. Execute once, then inspect state before retrying an ambiguous failure.
+5. Allow for image downloads and model loading, inspect logs without exposing secrets, and test the application's actual request or browser login. Report readiness only after that test succeeds. State what remains running and how to stop it, including any retained storage.
