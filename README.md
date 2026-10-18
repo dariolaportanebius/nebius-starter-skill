@@ -65,7 +65,7 @@ Service background: [Serverless AI](https://docs.nebius.com/serverless/overview)
 
 ## 4. Know your team's limits
 
-These limits apply to your team's project and are shared by all team members and workloads. The Standard bucket's 200 GiB size is a setting you apply when creating the bucket. Before launching a workload, check current project usage and reservation allowances; the table does not show remaining capacity.
+These limits apply to your team's project and are shared by all team members and workloads. Use an Enhanced Throughput bucket and set its size limit to 200 GiB when creating it. Before launching a workload, check current project usage and reservation allowances; the table does not show remaining capacity.
 
 | Resource | Team limit |
 | --- | --- |
@@ -78,7 +78,7 @@ These limits apply to your team's project and are shared by all team members and
 | Public IPv4 addresses | **1** |
 | Container registries | **1 registry**; this is not a one-image limit |
 | Object Storage buckets | **1** |
-| Object Storage bucket size | Set **200 GiB** when creating your Standard bucket; separate from the 500 GiB disk allowance |
+| Object Storage bucket size | Set **200 GiB** when creating your **Enhanced Throughput** bucket; separate from the 500 GiB disk allowance |
 
 ### Plan around one GPU
 
@@ -213,17 +213,27 @@ Load the values into your application's protected runtime configuration or a loc
 
 ### Create and use your team's bucket
 
-Your project's editor role allows you to create a bucket. Each team shares one **Standard** bucket. Set its size limit to **200 GiB** when creating it. If a teammate has already created it, use that bucket.
+Your project's editor role allows you to create a bucket. Each team shares one **Enhanced Throughput** bucket with a **200 GiB** size limit. **Standard storage is not available in the hackathon's `uk-south2` region.** If a teammate has already created a bucket, reuse it and check its storage class before uploading.
 
 To create it in the [Nebius console](https://console.nebius.com/):
 
 1. Select your assigned project in **uk-south2**.
 2. Open **Storage → Object Storage**, then select **Create resource → Bucket**.
 3. Choose a name unique across the region, such as `hackathon-your-team-name-random-suffix`. Use 3–63 lowercase letters, numbers, dots, or hyphens.
-4. Set **Storage class** to **Standard**, enable **Force storage class**, and set **Bucket size** to **200 GiB**. Leave versioning disabled unless your application needs it.
+4. Set **Storage class** to **Enhanced Throughput**, enable **Force storage class**, and set **Bucket size** to **200 GiB**. Leave versioning disabled unless your application needs it.
 5. Click **Create bucket** and copy its name into your application's configuration.
 
 See the [official bucket-creation instructions](https://docs.nebius.com/object-storage/buckets/manage#how-to-create-buckets) for console and CLI options. Configure your S3-compatible client with the credentials, region, and endpoint from SecretStash above.
+
+### Fix an existing Standard bucket
+
+If an upload fails with `QuotaLimitExceeded` for `storage.bucket.size.standard`, reporting **used 0 of 0**, check the bucket's storage class:
+
+1. In your project, open **Storage → Object Storage**, select your team's bucket, and open **Settings**.
+2. Change its default storage class to **Enhanced Throughput**, enable **Force storage class**, keep the **200 GiB** size limit, and save.
+3. Retry a small upload using the commands below. If it still fails, share the error and bucket name with an organizer, keeping credentials private.
+
+Keep the existing bucket; you do not need to delete or recreate it. The new default applies to future uploads and does not change existing objects. **Force storage class** makes uploads use the bucket's selected class even when a client requests another class. See [storage-class configuration](https://docs.nebius.com/object-storage/configure-storage-classes).
 
 ### Use the credentials to upload and download files
 
@@ -258,7 +268,7 @@ aws --profile hackathon-storage --endpoint-url "$HACKATHON_STORAGE_ENDPOINT" \
   s3 ls "s3://$HACKATHON_BUCKET/"
 ```
 
-The endpoint is the `AWS_ENDPOINT_URL` value from SecretStash. Keep the explicit `--endpoint-url` on each command so the client connects to Nebius. A successful listing with no output means the bucket is empty.
+The endpoint is the `AWS_ENDPOINT_URL` value from SecretStash. Keep the explicit `--endpoint-url` on each command so the client connects to Nebius. Use the bucket's configured storage class; do not add a `--storage-class` option to the AWS CLI commands below. A successful listing with no output means the bucket is empty.
 
 **3. Upload a small test file, then download it.** Run these commands in the same terminal. They use a temporary local directory and a unique object name to avoid replacing a teammate's file:
 
@@ -339,6 +349,7 @@ After cleanup, verify the workload state and remaining usage in your project. Fo
 | Endpoint returns 401 | Check the gateway bearer token and any separate application authentication. |
 | Browser Devlab returns an authentication error before its login page | Check whether platform bearer authentication was enabled; use the Jupyter/template login setup in [How to connect](#how-to-connect). |
 | Object Storage authentication fails | Check the endpoint, region, matching key pair, and expiry in SecretStash. |
+| Upload fails with `QuotaLimitExceeded` for `storage.bucket.size.standard`, used 0 of 0 | [Change the existing bucket to Enhanced Throughput and enable Force storage class](#fix-an-existing-standard-bucket). Standard storage is unavailable in `uk-south2`. |
 | Object Storage bucket missing | Select your assigned project and follow [Create and use your team's bucket](#create-and-use-your-teams-bucket). If the one-bucket limit is reached, check whether a teammate already created it. |
 | Token Factory request fails | Check its own API key, credits, selected model, and response error. Cloud access does not establish Token Factory access. |
 
@@ -417,7 +428,7 @@ Distinguish installed files from skills that are enabled and usable in this sess
 
 #### Step 4: Read the full environment description
 
-After skill setup, read all of sections 1–10 of this README, including project access, limits, SecretStash, Standard buckets, and workload lifecycle. Summarize the environment constraints relevant to future cloud operations. Identify the participant's assigned tenant and project from available context; ask if the assignment is missing or ambiguous. Never infer their assignment solely from the example project name.
+After skill setup, read all of sections 1–10 of this README, including project access, limits, SecretStash, Enhanced Throughput buckets, and workload lifecycle. For Object Storage in `uk-south2`, use Enhanced Throughput with Force storage class enabled and a 200 GiB bucket size limit; do not use Standard. Summarize the environment constraints relevant to future cloud operations. Identify the participant's assigned tenant and project from available context; ask if the assignment is missing or ambiguous. Never infer their assignment solely from the example project name.
 
 #### Step 5: Configure and verify Nebius Cloud access
 
